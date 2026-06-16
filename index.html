@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembuatan Draf PAK</title>
+
+    <!-- BARU: Kode pemanggilan Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; } /* Warna dasar dihapus */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Animasi Transisi Halus */
+        .fade-enter { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .fade-enter-active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="cover-page" class="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-900 to-blue-700 text-white px-4 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10">
+            <i class="fa-solid fa-file-signature absolute text-9xl top-10 left-10 transform -rotate-12"></i>
+            <i class="fa-solid fa-chart-line absolute text-9xl bottom-20 right-20 transform rotate-12"></i>
+        </div>
+
+        <div class="z-10 text-center max-w-2xl bg-white bg-opacity-10 backdrop-blur-md p-10 rounded-2xl shadow-2xl border border-blue-400 border-opacity-30">
+            <div class="mb-6 inline-block bg-white text-blue-800 p-4 rounded-full shadow-lg">
+                <i class="fa-solid fa-file-contract text-5xl"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Pembuatan Draf PAK</h1>
+            <h2 class="text-xl font-medium mb-6 text-blue-200">Alih Kategori JF Keterampilan ke JF Keahlian</h2>
+            <p class="mb-8 text-blue-100 leading-relaxed">
+                Modul layanan terintegrasi SIMPEL untuk mempermudah perhitungan dan pembuatan draf PAK Alih Kategori JF Keterampilan ke JF Keahlian.
+            </p>
+            <button onclick="mulaiAplikasi()" class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 px-10 rounded-full shadow-lg transition transform hover:scale-105 flex items-center justify-center mx-auto gap-3 text-lg">
+                <span>Mulai Isi Formulir</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="absolute bottom-6 z-10 text-sm text-blue-300 font-medium tracking-wider">
+            © 2026 – BKPSDM Balangan
+        </div>
+    </div>
+
+    <!-- ================= FORM PAGE ================= -->
+    <!-- BARU: Latar belakang gradasi biru muda (from-blue-50 via-blue-100 to-blue-200) -->
+    <div id="form-page" class="hidden min-h-screen py-10 px-4 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 relative overflow-hidden">
+        
+        <!-- BARU: Ornamen Latar Belakang (Watermark Transparan) -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none opacity-60">
+            <i class="fa-solid fa-file-signature absolute text-8xl top-20 left-10 transform -rotate-12 text-blue-200"></i>
+            <i class="fa-solid fa-calculator absolute text-9xl bottom-20 left-1/4 transform rotate-12 text-blue-200 opacity-50"></i>
+            <i class="fa-solid fa-chart-line absolute text-8xl top-1/3 right-10 transform -rotate-12 text-blue-200"></i>
+            <i class="fa-solid fa-file-contract absolute text-9xl bottom-40 right-1/4 transform rotate-45 text-white opacity-40"></i>
+        </div>
+
+        <!-- BARU: shadow-2xl dan relative z-10 agar form melayang di atas ornamen -->
+        <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-2xl border-t-4 border-blue-600 relative z-10">
+            
+            <div class="flex items-center justify-between border-b border-gray-200 pb-4 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Formulir Pembuatan Draf PAK</h2>
+                
+                <!-- Kelompok Tombol Navigasi Atas -->
+                <div class="flex gap-5">
+                    <button onclick="resetForm()" class="text-gray-500 hover:text-red-500 transition flex items-center gap-2 text-sm font-medium" title="Kosongkan semua isian">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                    <button onclick="kembaliKeCover()" class="text-gray-500 hover:text-blue-600 transition flex items-center gap-2 text-sm font-medium">
+                        <i class="fa-solid fa-house"></i> Kembali
+                    </button>
+                </div>
+            </div>
+            
+            <h3 class="text-lg font-semibold text-blue-800 mb-5 bg-blue-50 p-3 rounded flex items-center gap-3 border border-blue-100">
+                <i class="fa-solid fa-user-tie text-blue-600"></i> A. Data Diri (Pra-Alih Kategori)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Lengkap (Beserta Gelar)</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-regular fa-user text-gray-400"></i></div>
+                        <input type="text" id="nama" class="block w-full pl-10 p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">NIP (Hanya Angka)</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-id-card text-gray-400"></i></div>
+                        <input type="text" id="nip" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="18" class="block w-full pl-10 p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nomor Karpeg / ASN Digital</label>
+                    <input type="text" id="karpeg" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tempat Lahir</label>
+                        <input type="text" id="tempat_lahir" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tanggal Lahir</label>
+                        <input type="date" id="tanggal_lahir" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
+                    <select id="jenis_kelamin" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                        <option value="" disabled selected>Pilih...</option>
+                        <option value="Pria">Pria</option>
+                        <option value="Wanita">Wanita</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pangkat</label>
+                    <select id="pangkat" onchange="otomatisasiPangkat()" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                        <option value="" disabled selected>Pilih...</option>
+                        <option value="Penata Muda">Penata Muda</option>
+                        <option value="Penata Muda Tk. I">Penata Muda Tk. I</option>
+                        <option value="Penata">Penata</option>
+                        <option value="Penata Tk. I">Penata Tk. I</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Golongan Ruang</label>
+                        <input type="text" id="golongan" readonly class="mt-1 block w-full p-2.5 bg-gray-200 border border-gray-300 rounded-lg text-gray-600 font-bold cursor-not-allowed text-center">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">TMT Golongan</label>
+                        <input type="date" id="tmt_golongan" onchange="generatePeriode()" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Jabatan (Tanpa Jenjang)</label>
+                    <input type="text" id="jabatan" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jenjang</label>
+                        <select id="jenjang" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50 font-semibold">
+                            <option value="Terampil">Terampil</option>
+                            <option value="Mahir">Mahir</option>
+                            <option value="Penyelia">Penyelia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">TMT Jabatan</label>
+                        <input type="date" id="tmt_jabatan" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Unit Kerja</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-building text-gray-400"></i></div>
+                        <input type="text" id="unit_kerja" class="block w-full pl-10 p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-green-800 mb-5 bg-green-50 p-3 rounded flex items-center gap-3 border border-green-100">
+                <i class="fa-solid fa-file-signature text-green-600"></i> B. Data Atribut PAK
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10 pb-8 border-b border-gray-200">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Perkiraan TMT Keahlian</label>
+                    <input type="date" id="tmt_keahlian" onchange="sinkronisasiTMTKeahlian()" class="mt-1 block w-full p-2.5 border border-green-400 rounded-lg focus:ring-green-500 focus:border-green-500 bg-green-50 font-semibold text-green-900 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nomor PAK (Silakan Disesuaikan)</label>
+                    <input type="text" id="nomor_pak" value="800.1.4.5/…………………………." class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ditetapkan di</label>
+                    <div class="relative mt-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-location-dot text-gray-400"></i></div>
+                        <input type="text" id="tempat_tetap" value="Paringin" class="block w-full pl-10 p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pada Tanggal (Silakan Disesuaikan)</label>
+                    <input type="date" id="tanggal_pak" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-gray-50">
+                </div>
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nama Pejabat Penilai Kinerja</label>
+                        <input type="text" id="nama_pejabat" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">NIP Pejabat Penilai</label>
+                        <input type="text" id="nip_pejabat" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="18" class="mt-1 block w-full p-2.5 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-purple-800 mb-5 bg-purple-50 p-3 rounded flex items-center gap-3 border border-purple-100">
+                <i class="fa-solid fa-calculator text-purple-600"></i> C. Periode & Predikat Kinerja
+            </h3>
+            <div class="mb-6">
+                <div id="notif-potong" class="hidden mb-4 p-3 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-200 flex gap-3 items-start">
+                    <i class="fa-solid fa-circle-info mt-1"></i>
+                    <span id="notif-potong-teks"></span>
+                </div>
+                <div id="container-periode" class="space-y-3">
+                    <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                        <i class="fa-regular fa-calendar text-3xl mb-2 text-gray-400"></i>
+                        <p class="text-sm font-medium">Tabel akan otomatis muncul setelah TMT Golongan dan Perkiraan TMT Keahlian diisi.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 mt-8">
+                <button onclick="hitungAngkaKredit()" class="flex-1 bg-white border-2 border-purple-600 text-purple-700 font-bold py-3.5 rounded-xl hover:bg-purple-50 transition shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Pratinjau
+                </button>
+                <button id="btn-cetak" onclick="simpanDanCetak()" class="flex-1 bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> Buat Draf PAK
+                </button>
+            </div>
+
+            <div id="hasil" class="mt-8 hidden bg-purple-50 p-6 rounded-xl border border-purple-200 shadow-inner">
+                <h3 class="text-xl font-bold text-purple-800 mb-4 border-b border-purple-200 pb-2">Rincian Perhitungan Angka Kredit</h3>
+                <ul id="rincian-hasil" class="space-y-2 text-gray-700 mb-4 font-mono text-sm"></ul>
+                <div class="border-t-2 border-purple-300 pt-4 mt-4 flex justify-between items-center bg-white p-4 rounded-lg shadow-sm">
+                    <span class="font-bold text-lg text-purple-900">Total Angka Kredit</span>
+                    <span id="total-akhir" class="font-bold text-3xl text-purple-700">0</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 z-50 hidden flex flex-col items-center justify-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-white mb-6 shadow-lg"></div>
+        <h2 class="text-white text-3xl font-extrabold tracking-wide drop-shadow-md">Memproses Draf</h2>
+        <p class="text-blue-100 mt-3 text-center px-4 max-w-md font-medium leading-relaxed drop-shadow">
+            Mohon jangan tutup halaman ini.<br>Sistem sedang membuat sub-folder dan menginjeksi data ke template.
+        </p>
+    </div>
+
+    <script>
+        const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        const referensiPangkat = {
+            "Penata Muda": "III/a", 
+            "Penata Muda Tk. I": "III/b",
+            "Penata": "III/c", 
+            "Penata Tk. I": "III/d"
+        };
+
+        // Transisi SPA (Single Page Application)
+        function mulaiAplikasi() {
+            const cover = document.getElementById('cover-page');
+            const form = document.getElementById('form-page');
+            
+            cover.classList.add('opacity-0');
+            setTimeout(() => {
+                cover.classList.add('hidden');
+                form.classList.remove('hidden');
+                form.classList.add('fade-enter');
+                setTimeout(() => form.classList.add('fade-enter-active'), 50);
+            }, 300);
+        }
+
+        function kembaliKeCover() {
+            const cover = document.getElementById('cover-page');
+            const form = document.getElementById('form-page');
+            
+            form.classList.remove('fade-enter-active');
+            setTimeout(() => {
+                form.classList.add('hidden');
+                cover.classList.remove('hidden');
+                setTimeout(() => cover.classList.remove('opacity-0'), 50);
+            }, 300);
+        }
+
+        function otomatisasiPangkat() {
+            const pangkat = document.getElementById('pangkat').value;
+            const inputGolongan = document.getElementById('golongan');
+            const selectJenjang = document.getElementById('jenjang');
+
+            const gol = referensiPangkat[pangkat] || "";
+            inputGolongan.value = gol;
+
+            if (["III/a", "III/b"].includes(gol)) selectJenjang.value = "Mahir";
+            else if (["III/c", "III/d"].includes(gol)) selectJenjang.value = "Penyelia";
+            
+            generatePeriode();
+        }
+
+        function sinkronisasiTMTKeahlian() {
+            const tmtKeahlian = document.getElementById('tmt_keahlian').value;
+            const inputTanggalPak = document.getElementById('tanggal_pak');
+
+            if (tmtKeahlian) {
+                let tanggalDate = new Date(tmtKeahlian);
+                tanggalDate.setDate(tanggalDate.getDate() - 1);
+                
+                let tahun = tanggalDate.getFullYear();
+                let bulan = String(tanggalDate.getMonth() + 1).padStart(2, '0');
+                let hari = String(tanggalDate.getDate()).padStart(2, '0');
+                inputTanggalPak.value = `${tahun}-${bulan}-${hari}`;
+            }
+
+            generatePeriode();
+        }
+
+        function generatePeriode() {
+            const tmtGolongan = document.getElementById('tmt_golongan').value;
+            const tmtKeahlian = document.getElementById('tmt_keahlian').value;
+            const gol = document.getElementById('golongan').value;
+            const container = document.getElementById('container-periode');
+            const notifPotong = document.getElementById('notif-potong');
+            const teksNotif = document.getElementById('notif-potong-teks');
+
+            if (!tmtGolongan || !tmtKeahlian || !gol) return;
+
+            notifPotong.classList.add('hidden');
+            
+            let start = new Date(tmtGolongan);
+            let end = new Date(tmtKeahlian);
+            
+            const batasBulan = (gol === 'III/d') ? 36 : 48;
+
+            let hariTerakhirDiBulanEnd = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+            let endMonth = end.getMonth();
+            let endYear = end.getFullYear();
+
+            if (end.getDate() !== hariTerakhirDiBulanEnd) {
+                endMonth -= 1;
+                if (endMonth < 0) { endMonth = 11; endYear -= 1; }
+            }
+
+            let effectiveEnd = new Date(endYear, endMonth + 1, 0); 
+
+            if (start > effectiveEnd) {
+                container.innerHTML = `<div class="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Rentang tanggal tidak valid.</div>`;
+                return;
+            }
+
+            let batasMundur = new Date(effectiveEnd.getFullYear(), effectiveEnd.getMonth() - batasBulan + 1, 1);
+            
+            if (start < batasMundur) {
+                start = batasMundur;
+                teksNotif.innerHTML = `<strong>Info Sistem:</strong> TMT Golongan ditarik mundur menjadi maksimal <strong>${batasBulan/12} tahun kalender</strong> dari Perkiraan TMT Keahlian.`;
+                notifPotong.classList.remove('hidden');
+            }
+
+            container.innerHTML = ''; 
+            let currentStart = new Date(start);
+
+            while (currentStart <= effectiveEnd) {
+                let currentYear = currentStart.getFullYear();
+                
+                let periodEnd = new Date(currentYear, 11, 31); 
+                if (periodEnd > effectiveEnd) periodEnd = effectiveEnd;
+
+                let startMonthIdx = currentStart.getMonth();
+                let endMonthIdx = periodEnd.getMonth();
+                let jumlahBulan = (endMonthIdx - startMonthIdx) + 1;
+
+                let teksPeriode = (startMonthIdx === endMonthIdx) 
+                    ? `${namaBulan[startMonthIdx]} ${currentYear}` 
+                    : `${namaBulan[startMonthIdx]} – ${namaBulan[endMonthIdx]} ${currentYear}`;
+
+                const row = document.createElement('div');
+                row.className = 'periode-row flex flex-col md:flex-row justify-between md:items-center bg-white p-4 rounded-lg border border-gray-200 shadow-sm gap-4 hover:border-purple-300 transition';
+                row.innerHTML = `
+                    <div class="flex-1">
+                        <span class="font-bold text-gray-800 text-md block mb-1"><i class="fa-regular fa-calendar-check text-purple-500 mr-2"></i>${teksPeriode}</span>
+                        <input type="hidden" class="input-bulan" value="${jumlahBulan}">
+                        <input type="hidden" class="teks-periode" value="${teksPeriode}">
+                        <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded font-medium">${jumlahBulan} Bulan</span>
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <label class="text-xs text-gray-500 block mb-1">Predikat Kinerja</label>
+                        <select class="input-predikat w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-purple-500 focus:border-purple-500 bg-gray-50 font-medium">
+                            <option value="Baik">Baik</option>
+                            <option value="Sangat Baik">Sangat Baik</option>
+                        </select>
+                    </div>
+                `;
+                container.appendChild(row);
+                currentStart = new Date(currentYear + 1, 0, 1);
+            }
+        }
+
+        // Validasi Wajib Isi dengan SweetAlert2
+        function cekIsianKosong() {
+            const semuaInput = document.querySelectorAll('.max-w-4xl input:not([type="hidden"]), .max-w-4xl select');
+            
+            for (let i = 0; i < semuaInput.length; i++) {
+                let elemen = semuaInput[i];
+                if (elemen.readOnly || elemen.disabled) continue;
+
+                if (elemen.value === "") {
+                    let labelTeks = "Kolom isian";
+                    if (elemen.previousElementSibling && elemen.previousElementSibling.tagName === 'LABEL') {
+                        labelTeks = elemen.previousElementSibling.innerText;
+                    }
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Belum Lengkap',
+                        text: `Mohon lengkapi data: ${labelTeks} tidak boleh kosong.`,
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: '<i class="fa-solid fa-pen mr-2"></i>Lengkapi Sekarang'
+                    }).then(() => {
+                        elemen.focus(); 
+                    });
+                    
+                    return false; 
+                }
+            }
+            return true; 
+        }
+
+        function hitungAngkaKredit() {
+            if (!cekIsianKosong()) return;
+
+            const gol = document.getElementById('golongan').value;
+            
+            let akd = 0;
+            if (gol === 'III/b') akd = 50;
+            else if (gol === 'III/d') akd = 100;
+            else if (gol === 'III/a' || gol === 'III/c') akd = 0;
+
+            let koefisien = 0;
+            if (['III/a', 'III/b'].includes(gol)) koefisien = 12.5;
+            else if (['III/c', 'III/d'].includes(gol)) koefisien = 25;
+
+            const barisPeriode = document.querySelectorAll('.periode-row');
+            if (barisPeriode.length === 0) {
+                Swal.fire({
+                    icon: 'info', title: 'Periode Kosong',
+                    text: 'Silakan lengkapi TMT Golongan dan Perkiraan TMT Keahlian terlebih dahulu.',
+                    confirmButtonColor: '#8b5cf6'
+                });
+                return;
+            }
+
+            let totalBulanDiakui = 0;
+            let totalAkpk = 0;
+            const rincianList = [];
+
+            barisPeriode.forEach((baris) => {
+                let bulanAktual = parseInt(baris.querySelector('.input-bulan').value) || 0;
+                let namaPeriode = baris.querySelector('.teks-periode').value;
+                let predikat = baris.querySelector('.input-predikat').value;
+
+                if (bulanAktual <= 0) return;
+
+                totalBulanDiakui += bulanAktual;
+
+                let persentase = (predikat === 'Sangat Baik') ? 150 : 100;
+                let akpkPeriode = (bulanAktual / 12) * (persentase / 100) * koefisien;
+                totalAkpk += akpkPeriode;
+                
+                rincianList.push(`<li class="flex justify-between items-center py-1 border-b border-purple-100 last:border-0"><span class="text-gray-600">${namaPeriode}</span> <span class="bg-white px-2 py-1 rounded text-purple-800 font-bold border border-purple-100">(${bulanAktual}/12) x ${persentase}% x ${koefisien} = ${akpkPeriode.toFixed(3)}</span></li>`);
+            });
+
+            const divHasil = document.getElementById('hasil');
+            const ulRincian = document.getElementById('rincian-hasil');
+            const spanTotal = document.getElementById('total-akhir');
+
+            ulRincian.innerHTML = `
+                <li class="flex justify-between items-center py-2 mb-2 bg-purple-100 px-3 rounded-lg"><span class="font-bold text-purple-900">Angka Kredit Dasar (AKD) Gol. ${gol}</span> <span class="font-bold text-purple-900 text-lg">${akd.toFixed(3).replace('.', ',')}</span></li>
+                <li class="pt-2 mt-2 text-sm text-gray-500 font-semibold mb-2">Rincian AKPK (${totalBulanDiakui} Bulan Terklaim):</li>
+                ${rincianList.join('')}
+                <li class="flex justify-between items-center pt-3 mt-3 border-t border-purple-200"><span class="font-bold text-gray-700">Total Penambahan AKPK</span> <span class="font-bold text-purple-700 text-lg">${totalAkpk.toFixed(3).replace('.', ',')}</span></li>
+            `;
+
+            let totalAkhir = akd + totalAkpk;
+            // Memaksa total akhir selalu 3 digit desimal dengan koma
+            spanTotal.innerText = totalAkhir.toFixed(3).replace('.', ',');
+            
+            divHasil.classList.remove('hidden');
+            
+            // Scroll otomatis ke hasil
+            divHasil.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function simpanDanCetak() {
+            if (!cekIsianKosong()) return; 
+
+            document.getElementById('loading-overlay').classList.remove('hidden');
+
+            const btnCetak = document.getElementById('btn-cetak');
+            btnCetak.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+            btnCetak.disabled = true;
+            btnCetak.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btnCetak.classList.add('bg-gray-400', 'cursor-not-allowed');
+
+            const gol = document.getElementById('golongan').value;
+            let akd = 0;
+            if (gol === 'III/b') akd = 50;
+            else if (gol === 'III/d') akd = 100;
+
+            let koefisien = 0;
+            if (['III/a', 'III/b'].includes(gol)) koefisien = 12.5;
+            else if (['III/c', 'III/d'].includes(gol)) koefisien = 25;
+
+            const barisPeriode = document.querySelectorAll('.periode-row');
+            let totalAkpk = 0;
+            let arrayPeriode = [];
+
+            barisPeriode.forEach((baris, index) => {
+                let bulanAktual = parseInt(baris.querySelector('.input-bulan').value) || 0;
+                let namaPeriodeLengkap = baris.querySelector('.teks-periode').value;
+                let predikat = baris.querySelector('.input-predikat').value;
+
+                if (bulanAktual <= 0) return;
+
+                let persentase = (predikat === 'Sangat Baik') ? 150 : 100;
+                let akpkPeriode = (bulanAktual / 12) * (persentase / 100) * koefisien;
+                totalAkpk += akpkPeriode;
+
+                let parts = namaPeriodeLengkap.split(" ");
+                let tahun = parts[parts.length - 1]; 
+                let masaTanpaTahun = parts.slice(0, -1).join(" "); 
+
+                arrayPeriode.push({
+                    masaLengkap: namaPeriodeLengkap,
+                    tahun: tahun,
+                    masaTanpaTahun: masaTanpaTahun,
+                    bulan: bulanAktual,
+                    predikat: predikat,
+                    persentase: persentase,
+                    koefisien: koefisien,
+                    akpk: akpkPeriode
+                });
+            });
+
+            const payloadData = {
+                nama: document.getElementById('nama').value,
+                nip: document.getElementById('nip').value,
+                karpeg: document.getElementById('karpeg').value,
+                tempatLahir: document.getElementById('tempat_lahir').value,
+                tglLahir: document.getElementById('tanggal_lahir').value,
+                jenisKelamin: document.getElementById('jenis_kelamin').value,
+                pangkat: document.getElementById('pangkat').value,
+                golongan: gol,
+                tmtGolongan: document.getElementById('tmt_golongan').value,
+                jabatan: document.getElementById('jabatan').value,
+                tmtJabatan: document.getElementById('tmt_jabatan').value,
+                unitKerja: document.getElementById('unit_kerja').value,
+                noPak: document.getElementById('nomor_pak').value,
+                tglTetap: document.getElementById('tanggal_pak').value,
+                tempatTetap: document.getElementById('tempat_tetap').value,
+                namaPejabat: document.getElementById('nama_pejabat').value,
+                nipPejabat: document.getElementById('nip_pejabat').value,
+                
+                masaTotal: arrayPeriode[arrayPeriode.length - 1].masaLengkap,
+                akDasar: akd,
+                totalAkpk: totalAkpk,
+                totalAkhir: akd + totalAkpk,
+                rincianPeriode: arrayPeriode
+            };
+
+            const gasUrl = "https://script.google.com/macros/s/AKfycbwYDUEWT67637awuxrQt8nUt7dTi4aQtblFwtcoD5kDJOqnQORzuzib7F2RWpnQTb3s/exec";
+
+            fetch(gasUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payloadData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading-overlay').classList.add('hidden');
+
+                if(data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success', title: 'Berkas Selesai!',
+                        text: 'Semua Draf PAK telah berhasil dicetak.',
+                        confirmButtonColor: '#10b981'
+                    });
+
+                    document.getElementById('hasil').innerHTML = `
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4 shadow-sm flex items-center gap-3">
+                            <i class="fa-solid fa-circle-check text-2xl"></i>
+                            <div>
+                                <strong class="font-bold block">Pemrosesan Selesai!</strong>
+                                <span class="text-sm">Berkas telah tersimpan di cloud.</span>
+                            </div>
+                        </div>
+                        <a href="${data.folderUrl}" target="_blank" class="block w-full text-center bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-700 transition shadow-md flex items-center justify-center gap-2 text-lg">
+                            <i class="fa-regular fa-folder-open"></i> Buka Folder PAK
+                        </a>
+                    `;
+                    document.getElementById('hasil').classList.remove('hidden');
+                    document.getElementById('hasil').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    Swal.fire({
+                        icon: 'error', title: 'Gagal Memproses',
+                        text: data.message, confirmButtonColor: '#ef4444'
+                    });
+                }
+                
+                btnCetak.innerHTML = '<i class="fa-solid fa-print"></i> Simpan & Cetak Draf PAK';
+                btnCetak.disabled = false;
+                btnCetak.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btnCetak.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            })
+            .catch(error => {
+                document.getElementById('loading-overlay').classList.add('hidden');
+                Swal.fire({
+                    icon: 'error', title: 'Kesalahan Koneksi',
+                    text: error.toString(), confirmButtonColor: '#ef4444'
+                });
+                
+                btnCetak.innerHTML = '<i class="fa-solid fa-print"></i> Simpan & Cetak Draf PAK';
+                btnCetak.disabled = false;
+                btnCetak.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btnCetak.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            });
+        }
+
+        function resetForm() {
+            // Konfirmasi sebelum menghapus menggunakan SweetAlert2
+            Swal.fire({
+                title: 'Kosongkan Formulir?',
+                text: "Semua data yang sudah Anda ketik akan terhapus.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444', // Merah peringatan
+                cancelButtonColor: '#9ca3af',  // Abu-abu batal
+                confirmButtonText: '<i class="fa-solid fa-trash-can mr-2"></i>Ya, Kosongkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    
+                    // 1. Kosongkan semua input teks, number, date, dan select
+                    const semuaInput = document.querySelectorAll('.max-w-4xl input:not([readonly]), .max-w-4xl select');
+                    semuaInput.forEach(input => {
+                        // Kembalikan nilai default untuk field tertentu
+                        if (input.id === 'nomor_pak') {
+                            input.value = "800.1.4.5/………………………….";
+                        } else if (input.id === 'tempat_tetap') {
+                            input.value = "Paringin";
+                        } else {
+                            input.value = "";
+                        }
+                    });
+
+                    // 2. Kembalikan field otomatis/readonly ke default
+                    document.getElementById('golongan').value = "";
+                    document.getElementById('jenjang').value = "Terampil";
+
+                    // 3. Sembunyikan notifikasi dan kembalikan tabel periode ke kondisi awal
+                    document.getElementById('notif-potong').classList.add('hidden');
+                    document.getElementById('container-periode').innerHTML = `
+                        <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                            <i class="fa-regular fa-calendar text-3xl mb-2 text-gray-400"></i>
+                            <p class="text-sm font-medium">Tabel akan otomatis muncul setelah TMT Golongan dan Perkiraan TMT Keahlian diisi.</p>
+                        </div>
+                    `;
+
+                    // 4. Sembunyikan dan bersihkan hasil perhitungan (pratinjau)
+                    document.getElementById('hasil').classList.add('hidden');
+                    document.getElementById('rincian-hasil').innerHTML = '';
+                    document.getElementById('total-akhir').innerText = '0';
+
+                    // 5. Tampilkan notifikasi toast sukses (notif kecil di sudut layar)
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Formulir berhasil dikosongkan',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
